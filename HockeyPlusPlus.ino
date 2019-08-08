@@ -97,6 +97,39 @@ void drawScore() {
   matrix.write();
 }
 
+int i = 0;
+String tape = "bygeorgenet.me / Tap button to start";
+int wait = 40; // In milliseconds
+
+int spacer = 1;
+int width = 5 + spacer; // The font width is 5 pixels
+
+void tickerTick() {
+  i++;
+  if (i >= width * tape.length() + matrix.width() - 1 - spacer) {
+    i = 0;
+  }
+  
+  matrix.fillScreen(LOW);
+
+  int letter = i / width;
+  int x = (matrix.width() - 1) - i % width;
+  int y = (matrix.height() - 8) / 2; // center the text vertically
+
+  while ( x + width - spacer >= 0 && letter >= 0 ) {
+    if ( letter < tape.length() ) {
+      matrix.drawChar(x, y, tape[letter], HIGH, LOW, 1);
+    }
+
+    letter--;
+    x -= width;
+  }
+
+  matrix.write(); // Send bitmap to display
+
+  delay(wait);
+}
+
 void animateGoal(int ledNum) {
   matrix.fillScreen(LOW);
   matrix.drawChar(4, 0, 'G', HIGH, LOW, 1);
@@ -233,12 +266,7 @@ void loop() {
     Serial.println(startTime);
     isGameRunning = false;
   } else if (!isGameRunning) {
-    matrix.fillScreen(LOW);
-    matrix.drawChar(4, 0, 'O', HIGH, LOW, 1);
-    matrix.drawChar(10, 0, 'V', HIGH, LOW, 1);
-    matrix.drawChar(16, 0, 'E', HIGH, LOW, 1);
-    matrix.drawChar(22, 0, 'R', HIGH, LOW, 1);
-    matrix.write();
+    tickerTick();
 
     if (digitalRead(START_BUTTON) == HIGH) {
       startTime = millis();
@@ -246,7 +274,7 @@ void loop() {
 
       leftScore = 0;
       rightScore = 0;
-      
+
       //Serial.println("TAP");
       //Serial.println(millis());
     }
